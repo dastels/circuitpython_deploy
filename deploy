@@ -1,0 +1,108 @@
+#!/usr/bin/python3
+# -*-Python-*-
+
+# The MIT License (MIT)
+#
+# Copyright (c) 2019 Dave Astels
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+# THE SOFTWARE.
+
+import os
+import argparse
+import glob
+import json
+import re
+from deploy_config import config
+
+# Process the command line
+parser = argparse.ArgumentParser(description="Deploy/update a CircuitPython project.")
+parser.add_argument("-d", "--dir", default=config["dir"])
+parser.add_argument("-v", "--version", default=config["version"])
+parser.add_argument("-c", "--circuitpy", default=config["circuitpy"])
+parser.add_argument("-f", "--file", default="")
+
+args = parser.parse_args()
+
+manifest = None
+
+# Find the latest bundle
+bundles = glob.glob(os.path.join(args.dir, args.version, "*-bundle-*"))
+bundles.sort()
+bundle_name = bundles[-1]
+
+# Create lib paths
+lib_dir = os.path.join(bundle_name, "lib")
+cp_lib_dir = os.path.join(args.circuitpy, "lib")
+
+
+def copy_lib(lib_name):
+    print("  " + lib_name)
+    os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+
+
+def included(fname):
+    if fname == "manifest.json":
+        return False
+    if manifest is None:
+        return True
+    if manifest.get("exclude") is None:
+        return True
+    return True not in list(
+        [re.fullmatch(ex, fname) is not None for ex in manifest["exclude"]]
+    )
+
+
+def replace_file(fname):
+    if included(fname):
+        print("  " + fname)
+        fpath = os.path.join(args.circuitpy, fname)
+        if os.path.exists(fpath):
+            os.system("rm -r {0}".format(fpath))
+        os.system("cp -R {0} {1}".format(fname, args.circuitpy))
+    else:
+        print("--" + fname)
+
+
+# Update libraries
+try:
+    with open("manifest.json") as f:
+        manifest = json.loads(f.read())
+except IOError:
+    print("No manifest.json, skipping library update")
+
+if manifest:
+    print("Removing old libraries")
+    os.system("rm -rf {0}".format(os.path.join(cp_lib_dir, "*")))
+    print("Copying new libraries from {0}".format(lib_dir))
+    for lib in manifest["libs"]:
+        copy_lib(lib)
+
+# Copy project files
+if args.file == "":
+    print("replacing top level files/directories")
+    for f in glob.glob("*"):
+        replace_file(f)
+else:
+    code_file = args.file
+    if not code_file.endswith(".py"):
+        code_file += ".py"
+    print("Copy {0} to code.py".format(code_file))
+    os.system("cp {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+
+os.system("sync")
