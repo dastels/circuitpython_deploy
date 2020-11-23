@@ -1,5 +1,3 @@
-circuitpython_deploy
-
 Deployment script for CircuitPython.
 
 The file `deploy_config.py` that lives in the same place as the `deploy` script and contains overall configuration:
