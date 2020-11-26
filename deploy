@@ -70,8 +70,16 @@ def included(fname):
 
 def replace_file(fname):
     if included(fname):
-        print("  " + fname)
         fpath = os.path.join(args.circuitpy, fname)
+        code_path = os.path.join(args.circuitpy, "code.py")
+        if fname == "main.py" and os.path.exists(code_path):
+            print("main.py detected, removing code.py")
+            os.system("rm {0}".format(code_path))
+        main_path = os.path.join(args.circuitpy, "main.py")
+        if fname == "code.py" and os.path.exists(main_path):
+            print("code.py detected, removing main.py")
+            os.system("rm {0}".format(main_path))
+        print("  " + fname)
         if os.path.exists(fpath):
             os.system("rm -r {0}".format(fpath))
         os.system("cp -R {0} {1}".format(fname, args.circuitpy))
