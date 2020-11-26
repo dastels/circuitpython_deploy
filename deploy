@@ -88,6 +88,9 @@ except IOError:
 
 if manifest:
     print("Removing old libraries")
+    if not os.path.exists(cp_lib_dir):
+        print("Creating " + cp_lib_dir)
+        os.mkdir(cp_lib_dir)
     os.system("rm -rf {0}".format(os.path.join(cp_lib_dir, "*")))
     print("Copying new libraries from {0}".format(lib_dir))
     for lib in manifest["libs"]:
