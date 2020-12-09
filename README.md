@@ -98,7 +98,7 @@ So you make note of what files/directories not to copy, and what libraries you n
 
 If you don't provide a manifest, no libaries will ever be copied, and all project files will be.
 
-Typically you will set up your initial manifest file and run `deploy -l` to put the library modules in place. After that you will ususally just use the `-l` option when you add to the list of libraries in the manifest file or download & extract a new version of the bundle. You'll also probably seldom use the -s option to avoid taking the time to copy data files in subdirectories, using it only when they get updated. This is because those data files are relatively static compared to code. So most often while working on a project you'll simply use
+Typically you will set up your initial manifest file and run `deploy -l` to put the library modules in place. After that you will ususally just use the `-l` option when you add to the list of libraries in the manifest file or download & extract a new version of the bundle. You'll also probably seldom use the `-s` option to avoid taking the time to copy data files in subdirectories, using it only when they get updated. This is because those data files are usually relatively static (and large) compared to code. So most often while working on a project you'll simply use
 
 ```deploy```
 
