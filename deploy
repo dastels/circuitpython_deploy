@@ -32,12 +32,33 @@ from deploy_config import config
 
 # Process the command line
 parser = argparse.ArgumentParser(description="Deploy/update a CircuitPython project.")
-parser.add_argument("-d", "--dir", default=config["dir"])
-parser.add_argument("-v", "--version", default=config["version"])
-parser.add_argument("-c", "--circuitpy", default=config["circuitpy"])
-parser.add_argument("-f", "--file", default="")
-parser.add_argument("-s", "--skipdirs", action="store_true")
-parser.add_argument("-l", "--updatelibs", action="store_true")
+parser.add_argument(
+    "-d", "--dir", default=config["dir"], help="location of CircuitPython files"
+)
+parser.add_argument(
+    "-v", "--version", default=config["version"], help="version of CircuitPython to use"
+)
+parser.add_argument(
+    "-c",
+    "--circuitpy",
+    default=config["circuitpy"],
+    help="location of the CIRCUITPY drive",
+)
+parser.add_argument(
+    "-f", "--file", default="", help="the single file to copy to CIRCUITPY/code.py"
+)
+parser.add_argument(
+    "-s",
+    "--subdirs",
+    action="store_true",
+    help="copy top level subdirectories (e.g. sounds or fonts)",
+)
+parser.add_argument(
+    "-l",
+    "--updatelibs",
+    action="store_true",
+    help="update library modules (requires a project manifext.json)",
+)
 
 args = parser.parse_args()
 
@@ -83,12 +104,12 @@ def cleanup_obsolete_code_file(fname):
 
 def replace_file(fname):
     if included(fname):
-        fpath = os.path.join(args.circuitpy, fname)
+        dest_path = os.path.join(args.circuitpy, fname)
         cleanup_obsolete_code_file(fname)
-        if not (args.skipdirs and os.path.isdir(fpath)):
+        if not os.path.isdir(fname) or args.subdirs:
             print("  " + fname)
-            if os.path.exists(fpath):
-                os.system("rm -r {0}".format(fpath))
+            if os.path.exists(dest_path):
+                os.system("rm -r {0}".format(dest_path))
             os.system("cp -R {0} {1}".format(fname, args.circuitpy))
     else:
         print("--" + fname)

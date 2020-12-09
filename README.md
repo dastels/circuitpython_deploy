@@ -23,16 +23,20 @@ Each of these can be overridden with command line arguments to the deploy script
 Usage of the script is:
 
 ```
-usage: deploy [-h] [-d DIR] [-v VERSION] [-c CIRCUITPY] [-f FILE]
+usage: deploy [-h] [-d DIR] [-v VERSION] [-c CIRCUITPY] [-f FILE] [-s] [-l]
 
 Deploy/update a CircuitPython project.
 
 optional arguments:
   -h, --help            show this help message and exit
-  -d DIR, --dir DIR
+  -d DIR, --dir DIR     location of CircuitPython files
   -v VERSION, --version VERSION
+                        version of CircuitPython to use
   -c CIRCUITPY, --circuitpy CIRCUITPY
-  -f FILE, --file FILE
+                        location of the CIRCUITPY drive
+  -f FILE, --file FILE  the single file to copy to CIRCUITPY/code.py
+  -s, --subdirs         copy top level subdirectories (e.g. sounds or fonts)
+  -l, --updatelibs      update library modules (requires a project manifext.json)
 ```
 
 The FILE argument is useful in simple cases when you have a CircuitPython file that isn't called `code.py` or `main.py`. For example, the classic LED blink test script: `blink.py`. Use the command
@@ -43,9 +47,9 @@ Typically you'll just use the command:
 ```
 deploy
 ```
-which will update the required libraries and copy the required files to CIRCUITPY.
+which will recursively copy the files in the current directory to CIRCUITPY. If you want to skip subdirectories (e.g. `sounds`, `fonts`, `images`, etc.) use the `-s` option. If you want to update the contents of the lib folder, use the `-l` option. Updating lib requires you to have a `manifest.json` file specifying the libs to use.
 
-You can place a file named `manifest.json` in your project directory. This directory also contains whatever should be copied to CIRCUITPY, other than the lib directory.
+If you do place a file named `manifest.json` in your project directory you can have `deploy` manage the contents of `CIRCUITPY/lib` for you, making sure all required modules are present, and updating to a newser verson of the bundle as appropriate. It also let's you skipnot copy over specific project files.
 
 The manifest file is a JSON file containing two lists: `exclude` and `libs`, e.g:
 ```
@@ -82,9 +86,13 @@ The manifest file is a JSON file containing two lists: `exclude` and `libs`, e.g
 
 The `exclude` list contains regular expressions (as per the `re` module) which define files in the project directory that *should not* be copied to CIRCUITPY. I.e. any files that match any of the `exclude` regexes won't be copied. In the example, there's a reference image, test files (for pytest) and supporting classes, example files, etc. Think of this like a `gitignore` file. The `manifest.json` file is automatically excluded.
 
-The `libs` list contains the names of files and directories that should be copied into `CIRCUITPY/lib`. Where do those come from? An extracted bundle that lives in `<dir>/<version>` (`dir` and `version` come from the config file or command line arguments. The script will grab libraries from the most recent bundle directory (in case you didn't clean up old versions for some reason).
+The `libs` list contains the names of files and directories that should be copied into `CIRCUITPY/lib`. Where do those come from? An extracted bundle that lives in `<dir>/<version>` (`dir` and `version` come from the config file or command line arguments. The script will grab libraries from the most recent extracted bundle directory (in case you didn't clean up old versions for some reason).
 
 So you make note of what files/directories not to copy, and what libraries you need, and then just
-```deploy```
+```deploy -l```
 
-If you don't provide a manifest, no libaries will be copied, and all project files will be copied to CIRCUITPY.
+If you don't provide a manifest, no libaries will ever be copied, and all project files will be.
+
+Typically you will set up your initial manifest file and run `deploy -l` to put the library modules in place. After that you will ususally just use the `-l` option when you add to the list of libraries in the manifest file or download & extract a new version of the bundle. You'll also probably seldom use the -s option to avoid taking the time to copy data files in subdirectories, using it only when they get updated. This is becasue those data files are relatively static compared to code. So most often while workign on a project you'll simply use use
+```deploy```
+to update the top level project files (that aren't excluded), typically the code you're working on.
