@@ -36,6 +36,7 @@ parser.add_argument("-d", "--dir", default=config["dir"])
 parser.add_argument("-v", "--version", default=config["version"])
 parser.add_argument("-c", "--circuitpy", default=config["circuitpy"])
 parser.add_argument("-f", "--file", default="")
+parser.add_argument("-l", "--updatelibs", action="store_true")
 
 args = parser.parse_args()
 
@@ -94,7 +95,7 @@ try:
 except IOError:
     print("No manifest.json, skipping library update")
 
-if manifest:
+if manifest and args.updatelibs:
     print("Removing old libraries")
     if not os.path.exists(cp_lib_dir):
         print("Creating " + cp_lib_dir)
