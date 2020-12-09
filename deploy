@@ -36,6 +36,7 @@ parser.add_argument("-d", "--dir", default=config["dir"])
 parser.add_argument("-v", "--version", default=config["version"])
 parser.add_argument("-c", "--circuitpy", default=config["circuitpy"])
 parser.add_argument("-f", "--file", default="")
+parser.add_argument("-s", "--skipdirs", action="store_true")
 parser.add_argument("-l", "--updatelibs", action="store_true")
 
 args = parser.parse_args()
@@ -69,21 +70,26 @@ def included(fname):
     )
 
 
+def cleanup_obsolete_code_file(fname):
+    code_path = os.path.join(args.circuitpy, "code.py")
+    if fname == "main.py" and os.path.exists(code_path):
+        print("main.py detected, removing code.py")
+        os.system("rm {0}".format(code_path))
+    main_path = os.path.join(args.circuitpy, "main.py")
+    if fname == "code.py" and os.path.exists(main_path):
+        print("code.py detected, removing main.py")
+        os.system("rm {0}".format(main_path))
+
+
 def replace_file(fname):
     if included(fname):
         fpath = os.path.join(args.circuitpy, fname)
-        code_path = os.path.join(args.circuitpy, "code.py")
-        if fname == "main.py" and os.path.exists(code_path):
-            print("main.py detected, removing code.py")
-            os.system("rm {0}".format(code_path))
-        main_path = os.path.join(args.circuitpy, "main.py")
-        if fname == "code.py" and os.path.exists(main_path):
-            print("code.py detected, removing main.py")
-            os.system("rm {0}".format(main_path))
-        print("  " + fname)
-        if os.path.exists(fpath):
-            os.system("rm -r {0}".format(fpath))
-        os.system("cp -R {0} {1}".format(fname, args.circuitpy))
+        cleanup_obsolete_code_file(fname)
+        if not (args.skipdirs and os.path.isdir(fpath)):
+            print("  " + fname)
+            if os.path.exists(fpath):
+                os.system("rm -r {0}".format(fpath))
+            os.system("cp -R {0} {1}".format(fname, args.circuitpy))
     else:
         print("--" + fname)
 
