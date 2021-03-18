@@ -1,4 +1,8 @@
+# circuitpython_deploy 
+
 Deployment script for CircuitPython.
+
+# Configuration 
 
 The file `deploy_config.py` that lives in the same place as the `deploy` script and contains overall configuration:
 
@@ -6,7 +10,8 @@ The file `deploy_config.py` that lives in the same place as the `deploy` script 
   * the version of CircuitPython to use
   * the mountpoint of CIRCUITPY
 
-for example, here's my current config:
+
+For example, here's my current config:
 
 ```
 config = {
@@ -19,6 +24,9 @@ config = {
 So wherever `dir` is, it will have subdirectories (at least one) corresponding to possible values of `version`. I've chosen "5.0", "6.0", etc. for these. In those subdirectories is where I keep the various CircuitPython UF2 files for various boards and various versions (extracted) of the bundles.
 
 Each of these can be overridden with command line arguments to the deploy script.
+
+
+# Usage
 
 Usage of the script is:
 
@@ -36,7 +44,7 @@ optional arguments:
                         location of the CIRCUITPY drive
   -f FILE, --file FILE  the single file to copy to CIRCUITPY/code.py
   -s, --subdirs         copy top level subdirectories (e.g. sounds or fonts)
-  -l, --updatelibs      update library modules (requires a project manifext.json)
+  -l, --updatelibs      update library modules (requires a project manifest.json)
 ```
 
 The FILE argument is useful in simple cases when you have a CircuitPython file that isn't called `code.py` or `main.py`. For example, the classic LED blink test script: `blink.py`. Use the command
@@ -52,6 +60,8 @@ deploy
 ```
 
 which will recursively copy the files in the current directory to CIRCUITPY. If you want to copy subdirectories (e.g. `sounds`, `fonts`, `images`, etc.) use the `-s` option. If you want to update the contents of the lib folder, use the `-l` option. See below.
+
+## manifest.json
 
 If you place a file named `manifest.json` in your project directory you can have `deploy` manage the contents of `CIRCUITPY/lib` for you, making sure all required modules are present, and updating to the latest verson of the bundle as appropriate. It also let's you skip copying specific project files.
 
@@ -96,7 +106,7 @@ So you make note of what files/directories not to copy, and what libraries you n
 
 ```deploy -l```
 
-If you don't provide a manifest, no libaries will ever be copied, and all project files will be.
+*If you don't provide a manifest, no libaries will ever be copied, and all project files will be.*
 
 Typically you will set up your initial manifest file and run `deploy -l` to put the library modules in place. After that you will ususally just use the `-l` option when you add to the list of libraries in the manifest file or download & extract a new version of the bundle. You'll also probably seldom use the `-s` option to avoid taking the time to copy data files in subdirectories, using it only when they get updated. This is because those data files are usually relatively static (and large) compared to code. So most often while working on a project you'll simply use
 
