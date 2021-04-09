@@ -30,6 +30,13 @@ import json
 import re
 from deploy_config import config
 
+if os.path.exists(os.path.join(os.getcwd(), "deploy_config.json")):
+        with open("deploy_config.json") as f:
+                overrides  = json.loads(f.read())
+                for k, v in overrides.items():
+                    config[k] = v
+
+
 # Process the command line
 parser = argparse.ArgumentParser(description="Deploy/update a CircuitPython project.")
 parser.add_argument(
