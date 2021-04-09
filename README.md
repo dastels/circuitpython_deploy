@@ -18,7 +18,7 @@ config = {
 
 So wherever `dir` is, it will have subdirectories (at least one) corresponding to possible values of `version`. I've chosen "5.0", "6.0", etc. for these. In those subdirectories is where I keep the various CircuitPython UF2 files for various boards and various versions (extracted) of the bundles.
 
-Each of these can be overridden with command line arguments to the deploy script.
+Each of these can be overridden with command line arguments to the deploy script as well as in aa optiomal project local json file: deploy_config.json
 
 Usage of the script is:
 
