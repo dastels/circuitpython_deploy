@@ -95,7 +95,6 @@ cp_lib_dir = os.path.join(args.circuitpy, "lib")
 def copy_lib(lib_name):
     print("  " + lib_name)
     if cpswitch == True:
-        print(f"MacOS detected - adding -X switch for cp")
         os.system("cp -RX {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
     else:
         os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
@@ -133,7 +132,6 @@ def replace_file(fname):
             if os.path.exists(dest_path):
                 os.system("rm -r {0}".format(dest_path))
             if cpswitch == True:
-                print(f"MacOS detected - adding -X switch for cp")
                 os.system("cp -RX {0} {1}".format(fname, args.circuitpy))
             else:
                 os.system("cp -R {0} {1}".format(fname, args.circuitpy))
@@ -168,6 +166,9 @@ else:
     if not code_file.endswith(".py"):
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
-    os.system("cp {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    if cpswitch == True:
+        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    else:
+        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
