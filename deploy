@@ -24,11 +24,22 @@
 # THE SOFTWARE.
 
 import os
+import platform
 import argparse
 import glob
 import json
 import re
 from deploy_config import config
+
+# Detect OS - set "-X" option for MacOS (Darwin)
+p = platform.system()
+if p == "Darwin":
+    print(f"platform system is {p} - setting MacOS option to cp commands")
+    cpswitch = True 
+else:
+    print(f"platform system is {p}")
+    cpswitch = False
+
 
 if os.path.exists(os.path.join(os.getcwd(), "deploy_config.json")):
         with open("deploy_config.json") as f:
@@ -83,7 +94,10 @@ cp_lib_dir = os.path.join(args.circuitpy, "lib")
 
 def copy_lib(lib_name):
     print("  " + lib_name)
-    os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+    if cpswitch == True:
+        os.system("cp -RX {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+    else:
+        os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
 
 
 def included(fname):
@@ -117,7 +131,10 @@ def replace_file(fname):
             print("  " + fname)
             if os.path.exists(dest_path):
                 os.system("rm -r {0}".format(dest_path))
-            os.system("cp -R {0} {1}".format(fname, args.circuitpy))
+            if cpswitch == True:
+                os.system("cp -RX {0} {1}".format(fname, args.circuitpy))
+            else:
+                os.system("cp -R {0} {1}".format(fname, args.circuitpy))
     else:
         print("--" + fname)
 
@@ -149,6 +166,9 @@ else:
     if not code_file.endswith(".py"):
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
-    os.system("cp {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    if cpswitch == True:
+        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    else:
+        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
