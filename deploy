@@ -36,6 +36,9 @@ p = platform.system()
 if p == "Darwin":
     print(f"platform system is {p} - setting MacOS option to cp commands")
     cpswitch = True 
+elif p == "Windows":
+    print(f"platform system is {p} - setting Windows commands")
+    cpswitch = "Windows"
 else:
     print(f"platform system is {p}")
     cpswitch = False
@@ -96,6 +99,8 @@ def copy_lib(lib_name):
     print("  " + lib_name)
     if cpswitch == True:
         os.system("cp -RX {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+    elif cpswitch == "Windows":
+        os.system("xcopy /S /Y /F {0} {1}".format(fname, args.circuitpy))
     else:
         os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
 
@@ -116,11 +121,17 @@ def cleanup_obsolete_code_file(fname):
     code_path = os.path.join(args.circuitpy, "code.py")
     if fname == "main.py" and os.path.exists(code_path):
         print("main.py detected, removing code.py")
-        os.system("rm {0}".format(code_path))
+        if cpswitch == "Windows":
+            os.system("del {0} {1}".format(fname, args.circuitpy))
+        else:
+            os.system("rm {0}".format(code_path))
     main_path = os.path.join(args.circuitpy, "main.py")
     if fname == "code.py" and os.path.exists(main_path):
         print("code.py detected, removing main.py")
-        os.system("rm {0}".format(main_path))
+        if cpswitch == "Windows":
+            os.system("del {0}".format(main_path))
+        else:
+            os.system("rm {0}".format(main_path))
 
 
 def replace_file(fname):
@@ -130,9 +141,15 @@ def replace_file(fname):
         if not os.path.isdir(fname) or args.subdirs:
             print("  " + fname)
             if os.path.exists(dest_path):
-                os.system("rm -r {0}".format(dest_path))
+                if cpswitch == "Windows":
+                    #os.system("del {0}".format(dest_path))
+                    print("del {0}".format(dest_path))
+                else:
+                    os.system("rm -r {0}".format(dest_path))
             if cpswitch == True:
                 os.system("cp -RX {0} {1}".format(fname, args.circuitpy))
+            elif cpswitch == "Windows":
+                os.system("xcopy /S /Y /F {0} {1}".format(fname, args.circuitpy))
             else:
                 os.system("cp -R {0} {1}".format(fname, args.circuitpy))
     else:
@@ -168,7 +185,10 @@ else:
     print("Copy {0} to code.py".format(code_file))
     if cpswitch == True:
         os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    elif cpswitch == "Windows":
+        os.system("xcopy /S /Y /F {0} {1}".format(fname, args.circuitpy))
     else:
-        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+        os.system("cp {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
 
-os.system("sync")
+if cpswitch != "Windows":
+    os.system("sync")

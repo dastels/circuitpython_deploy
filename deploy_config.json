@@ -1,3 +1,4 @@
 {
-    "circuitpy": "/media/dastels/OTHER"
+    # "circuitpy": "/media/dastels/OTHER"
+    "circuitpy": "d:\\CIRCUITPY"
 }
