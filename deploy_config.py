@@ -23,7 +23,9 @@
 """Configuration file for deploy"""
 
 config = {
-    "dir": "/home/dastels/Documents/CircuitPython",  #
+    "dir": "c:\\temp\\CircuitPython",  #
+    # "dir": "/home/dastels/Documents/CircuitPython",  #
     "version": "6.0",
-    "circuitpy": "/media/dastels/CIRCUITPY",
+    "circuitpy": "d:\\CIRCUITPY",
+    # "circuitpy": "/media/dastels/CIRCUITPY",
 }
