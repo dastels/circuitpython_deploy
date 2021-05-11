@@ -107,9 +107,7 @@ def included(fname):
         return True
     if manifest.get("exclude") is None:
         return True
-    return True not in list(
-        [re.fullmatch(ex, fname) is not None for ex in manifest["exclude"]]
-    )
+    return not any([re.fullmatch(ex, fname) is not None for ex in manifest["exclude"]])
 
 
 def cleanup_obsolete_code_file(fname):
