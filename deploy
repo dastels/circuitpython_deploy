@@ -35,17 +35,17 @@ from deploy_config import config
 p = platform.system()
 if p == "Darwin":
     print(f"platform system is {p} - setting MacOS option to cp commands")
-    cpswitch = True 
+    cpswitch = True
 else:
     print(f"platform system is {p}")
     cpswitch = False
 
 
 if os.path.exists(os.path.join(os.getcwd(), "deploy_config.json")):
-        with open("deploy_config.json") as f:
-                overrides  = json.loads(f.read())
-                for k, v in overrides.items():
-                    config[k] = v
+    with open("deploy_config.json") as f:
+        overrides = json.loads(f.read())
+        for k, v in overrides.items():
+            config[k] = v
 
 
 # Process the command line
@@ -167,8 +167,12 @@ else:
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
     if cpswitch == True:
-        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+        os.system(
+            "cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py"))
+        )
     else:
-        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+        os.system(
+            "cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py"))
+        )
 
 os.system("sync")
