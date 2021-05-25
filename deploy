@@ -33,10 +33,10 @@ from deploy_config import config
 
 
 if os.path.exists(os.path.join(os.getcwd(), "deploy_config.json")):
-        with open("deploy_config.json") as f:
-                overrides  = json.loads(f.read())
-                for k, v in overrides.items():
-                    config[k] = v
+    with open("deploy_config.json") as f:
+        overrides = json.loads(f.read())
+        for k, v in overrides.items():
+            config[k] = v
 
 
 # Process the command line
@@ -101,9 +101,7 @@ def included(fname):
         return True
     if manifest.get("exclude") is None:
         return True
-    return True not in list(
-        [re.fullmatch(ex, fname) is not None for ex in manifest["exclude"]]
-    )
+    return not any([re.fullmatch(ex, fname) is not None for ex in manifest["exclude"]])
 
 
 def cleanup_obsolete_code_file(fname):
