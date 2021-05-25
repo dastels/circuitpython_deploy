@@ -108,11 +108,17 @@ def cleanup_obsolete_code_file(fname):
     code_path = os.path.join(args.circuitpy, "code.py")
     if fname == "main.py" and os.path.exists(code_path):
         print("main.py detected, removing code.py")
-        os.system("rm {0}".format(code_path))
+        if (platform.system == 'Windows'):
+            os.system("del /s /q {0}".format(code_path))
+        else:
+            os.system("rm {0}".format(code_path))
     main_path = os.path.join(args.circuitpy, "main.py")
     if fname == "code.py" and os.path.exists(main_path):
         print("code.py detected, removing main.py")
-        os.system("rm {0}".format(main_path))
+        if (platform.system == 'Windows'):
+            os.system("del /s /q {0}".format(main_path))
+        else:
+            os.system("rm {0}".format(main_path))
 
 
 def replace_file(fname):
@@ -149,7 +155,10 @@ if manifest and args.updatelibs:
     if not os.path.exists(cp_lib_dir):
         print("Creating " + cp_lib_dir)
         os.mkdir(cp_lib_dir)
-    os.system("rm -rf {0}".format(os.path.join(cp_lib_dir, "*")))
+    if (platform.system == 'Windows'):
+        os.system("del /s /q {0}".format(os.path.join(cp_lib_dir, "*")))
+    else:
+        os.system("rm -rf {0}".format(os.path.join(cp_lib_dir, "*")))
     print("Copying new libraries from {0}".format(lib_dir))
     for lib in manifest["libs"]:
         copy_lib(lib)
@@ -170,6 +179,6 @@ else:
         cpCmd = 'xcopy /S /Y /F'
     else:
         cpCmd = 'cp -R'
-    os.system("{0} {1} {2}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
+    os.system("{0} {1} {2} {3}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
