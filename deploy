@@ -31,15 +31,6 @@ import json
 import re
 from deploy_config import config
 
-# Detect OS - set "-X" option for MacOS (Darwin)
-p = platform.system()
-if p == "Darwin":
-    print(f"platform system is {p} - setting MacOS option to cp commands")
-    cpswitch = True 
-else:
-    print(f"platform system is {p}")
-    cpswitch = False
-
 
 if os.path.exists(os.path.join(os.getcwd(), "deploy_config.json")):
         with open("deploy_config.json") as f:
@@ -94,10 +85,13 @@ cp_lib_dir = os.path.join(args.circuitpy, "lib")
 
 def copy_lib(lib_name):
     print("  " + lib_name)
-    if cpswitch == True:
-        os.system("cp -RX {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+    if (platform.system == 'Darwin'):
+        cpCmd = 'cp -RX'
+    elif (platform.system == 'Windows'):
+        cpCmd = 'xcopy /S /Y /F'
     else:
-        os.system("cp -R {0} {1}".format(os.path.join(lib_dir, lib_name), cp_lib_dir))
+        cpCmd = 'cp -R'
+    os.system("{0} {1} {2}".format(cpCmd, os.path.join(lib_dir, lib_name), cp_lib_dir))
 
 
 def included(fname):
@@ -130,11 +124,17 @@ def replace_file(fname):
         if not os.path.isdir(fname) or args.subdirs:
             print("  " + fname)
             if os.path.exists(dest_path):
-                os.system("rm -r {0}".format(dest_path))
-            if cpswitch == True:
-                os.system("cp -RX {0} {1}".format(fname, args.circuitpy))
+                if (platform.system == 'Windows'):
+                    os.system("del /s /q {0}".format(dest_path))
+                else:
+                    os.system("rm -r {0}".format(dest_path))
+            if (platform.system == 'Darwin'):
+                cpCmd = 'cp -RX'
+            elif (platform.system == 'Windows'):
+                cpCmd = 'xcopy /S /Y /F'
             else:
-                os.system("cp -R {0} {1}".format(fname, args.circuitpy))
+                cpCmd = 'cp -R'
+            os.system("{0} {1} {2}".format(cpCmd, fname, args.circuitpy))
     else:
         print("--" + fname)
 
@@ -166,9 +166,12 @@ else:
     if not code_file.endswith(".py"):
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
-    if cpswitch == True:
-        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+    if (platform.system == 'Darwin'):
+        cpCmd = 'cp -RX'
+    elif (platform.system == 'Windows'):
+        cpCmd = 'xcopy /S /Y /F'
     else:
-        os.system("cp -X {0} {1}".format(code_file, os.path.join(args.circuitpy, "code.py")))
+        cpCmd = 'cp -R'
+    os.system("{0} {1} {2}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
