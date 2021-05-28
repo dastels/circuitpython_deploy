@@ -82,15 +82,23 @@ bundle_name = bundles[-1]
 lib_dir = os.path.join(bundle_name, "lib")
 cp_lib_dir = os.path.join(args.circuitpy, "lib")
 
+# Set cpCmd
+if (platform.system() == 'Darwin'):
+    cpCmd = 'cp -RX'
+elif (platform.system() == 'Windows'):
+    cpCmd = 'xcopy /S /Y /F'
+else:
+    cpCmd = 'cp -R'
+
+# Set rmCmd
+if (platform.system() == 'Windows'):
+    rmCmd = "del /s /q"
+else:
+    rmCmd = "rm -rf"
+
 
 def copy_lib(lib_name):
     print("  " + lib_name)
-    if (platform.system == 'Darwin'):
-        cpCmd = 'cp -RX'
-    elif (platform.system == 'Windows'):
-        cpCmd = 'xcopy /S /Y /F'
-    else:
-        cpCmd = 'cp -R'
     os.system("{0} {1} {2}".format(cpCmd, os.path.join(lib_dir, lib_name), cp_lib_dir))
 
 
@@ -108,11 +116,11 @@ def cleanup_obsolete_code_file(fname):
     code_path = os.path.join(args.circuitpy, "code.py")
     if fname == "main.py" and os.path.exists(code_path):
         print("main.py detected, removing code.py")
-        os.system("rm {0}".format(code_path))
+        os.system("{0} {1}".format(rmCmd, code_path))
     main_path = os.path.join(args.circuitpy, "main.py")
     if fname == "code.py" and os.path.exists(main_path):
         print("code.py detected, removing main.py")
-        os.system("rm {0}".format(main_path))
+        os.system("{0} {1}".format(rmCmd, code_path))
 
 
 def replace_file(fname):
@@ -122,16 +130,7 @@ def replace_file(fname):
         if not os.path.isdir(fname) or args.subdirs:
             print("  " + fname)
             if os.path.exists(dest_path):
-                if (platform.system == 'Windows'):
-                    os.system("del /s /q {0}".format(dest_path))
-                else:
-                    os.system("rm -r {0}".format(dest_path))
-            if (platform.system == 'Darwin'):
-                cpCmd = 'cp -RX'
-            elif (platform.system == 'Windows'):
-                cpCmd = 'xcopy /S /Y /F'
-            else:
-                cpCmd = 'cp -R'
+                os.system("{0} {1}".format(rmCmd, dest_path))
             os.system("{0} {1} {2}".format(cpCmd, fname, args.circuitpy))
     else:
         print("--" + fname)
@@ -149,7 +148,7 @@ if manifest and args.updatelibs:
     if not os.path.exists(cp_lib_dir):
         print("Creating " + cp_lib_dir)
         os.mkdir(cp_lib_dir)
-    os.system("rm -rf {0}".format(os.path.join(cp_lib_dir, "*")))
+    os.system("{0} {1}".format(rmCmd, os.path.join(cp_lib_dir, "*")))
     print("Copying new libraries from {0}".format(lib_dir))
     for lib in manifest["libs"]:
         copy_lib(lib)
@@ -164,12 +163,6 @@ else:
     if not code_file.endswith(".py"):
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
-    if (platform.system == 'Darwin'):
-        cpCmd = 'cp -RX'
-    elif (platform.system == 'Windows'):
-        cpCmd = 'xcopy /S /Y /F'
-    else:
-        cpCmd = 'cp -R'
-    os.system("{0} {1} {2}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
+    os.system("{0} {1} {2} {3}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
