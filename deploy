@@ -98,8 +98,11 @@ else:
 
 
 def copy_lib(lib_name):
-    print("  " + lib_name)
-    os.system("{0} {1} {2}".format(cpCmd, os.path.join(lib_dir, lib_name), cp_lib_dir))
+    local_path = os.path.join(".", "lib", lib_name)
+    use_local = os.path.isfile(local_path) or os.path.exists(local_path)
+    path_to_use = local_path if use_local else os.path.join(lib_dir, lib_name)
+    print(("  {0} (local)" if use_local else "  {0} (bundle)").format(lib_name))
+    os.system("{0} {1} {2}".format(cpCmd, path_to_use, cp_lib_dir))
 
 
 def included(fname):
@@ -163,6 +166,6 @@ else:
     if not code_file.endswith(".py"):
         code_file += ".py"
     print("Copy {0} to code.py".format(code_file))
-    os.system("{0} {1} {2} {3}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
+    os.system("{0} {1} {2}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
 
 os.system("sync")
