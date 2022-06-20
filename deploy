@@ -125,18 +125,24 @@ def cleanup_obsolete_code_file(fname):
         print("code.py detected, removing main.py")
         os.system("{0} {1}".format(rmCmd, code_path))
 
+def maybe_compile(f):
+    if not os.path.isdir(f) and f in manifest["mpy"] and config["compiler"]:
+        print("compiling {0}".format(f))
+        os.system("{0} {1}".format(config["compiler"], f))
+        f = re.sub(r'.py', ".mpy", f)
+    return f
+
 
 def replace_file(fname):
     if included(fname):
-        dest_path = os.path.join(args.circuitpy, fname)
+        compiled_fname = maybe_compile(fname)
+        dest_path = os.path.join(args.circuitpy, compiled_fname)
         cleanup_obsolete_code_file(fname)
-        if not os.path.isdir(fname) or args.subdirs:
-            print("  " + fname)
+        if not os.path.isdir(compiled_fname) or args.subdirs:
+            print("copying {0}".format(compiled_fname))
             if os.path.exists(dest_path):
                 os.system("{0} {1}".format(rmCmd, dest_path))
-            os.system("{0} {1} {2}".format(cpCmd, fname, args.circuitpy))
-    else:
-        print("--" + fname)
+            os.system("{0} {1} {2}".format(cpCmd, compiled_fname, args.circuitpy))
 
 
 # Update libraries

@@ -26,4 +26,5 @@ config = {
     "dir": "/home/dastels/Documents/CircuitPython",  #
     "version": "6.0",
     "circuitpy": "/media/dastels/CIRCUITPY",
+    "compiler":None
 }
