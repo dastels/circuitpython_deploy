@@ -101,8 +101,8 @@ def copy_lib(lib_name):
     local_path = os.path.join(".", "lib", lib_name)
     use_local = os.path.isfile(local_path) or os.path.exists(local_path)
     path_to_use = local_path if use_local else os.path.join(lib_dir, lib_name)
-    print(("  {0} (local)" if use_local else "  {0} (bundle)").format(lib_name))
-    os.system("{0} {1} {2}".format(cpCmd, path_to_use, cp_lib_dir))
+    print(f"  {lib_name} (local)" if use_local else "  {lib_name} (bundle)")
+    os.system(f"{cpCmd} { path_to_use} {cp_lib_dir}")
 
 
 def included(fname):
@@ -119,16 +119,16 @@ def cleanup_obsolete_code_file(fname):
     code_path = os.path.join(args.circuitpy, "code.py")
     if fname == "main.py" and os.path.exists(code_path):
         print("main.py detected, removing code.py")
-        os.system("{0} {1}".format(rmCmd, code_path))
+        os.system(f"{rmCmd} {code_path}")
     main_path = os.path.join(args.circuitpy, "main.py")
     if fname == "code.py" and os.path.exists(main_path):
         print("code.py detected, removing main.py")
-        os.system("{0} {1}".format(rmCmd, code_path))
+        os.system(f"{rmCmd} {code_path}")
 
 def maybe_compile(f):
     if not os.path.isdir(f) and f in manifest["mpy"] and config["compiler"]:
-        print("compiling {0}".format(f))
-        os.system("{0} {1}".format(config["compiler"], f))
+        print(f"compiling {f}")
+        os.system(f"{config['compiler']} {f}")
         f = re.sub(r'.py', ".mpy", f)
     return f
 
@@ -139,10 +139,10 @@ def replace_file(fname):
         dest_path = os.path.join(args.circuitpy, compiled_fname)
         cleanup_obsolete_code_file(fname)
         if not os.path.isdir(compiled_fname) or args.subdirs:
-            print("copying {0}".format(compiled_fname))
+            print(f"copying {compiled_fname}")
             if os.path.exists(dest_path):
-                os.system("{0} {1}".format(rmCmd, dest_path))
-            os.system("{0} {1} {2}".format(cpCmd, compiled_fname, args.circuitpy))
+                os.system(f"{rmCmd} {dest_path}")
+            os.system(f"{cpCmd} {compiled_fname} {args.circuitpy}")
 
 
 # Update libraries
@@ -157,8 +157,8 @@ if manifest and args.updatelibs:
     if not os.path.exists(cp_lib_dir):
         print("Creating " + cp_lib_dir)
         os.mkdir(cp_lib_dir)
-    os.system("{0} {1}".format(rmCmd, os.path.join(cp_lib_dir, "*")))
-    print("Copying new libraries from {0}".format(lib_dir))
+    os.system(f"{rmCmd} {os.path.join(cp_lib_dir, '*')}")
+    print(f"Copying new libraries from {lib_dir}")
     for lib in manifest["libs"]:
         copy_lib(lib)
 
@@ -171,7 +171,7 @@ else:
     code_file = args.file
     if not code_file.endswith(".py"):
         code_file += ".py"
-    print("Copy {0} to code.py".format(code_file))
-    os.system("{0} {1} {2}".format(cpCmd, code_file, os.path.join(args.circuitpy, "code.py")))
+    print(f"Copy {code_file} to code.py")
+    os.system(f"{cpCmd} {code_file} {os.path.join(args.circuitpy, 'code.py')}")
 
 os.system("sync")
